@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 14:57:32 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/10/21 14:25:44 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/10/21 14:59:28 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -193,19 +193,20 @@ void	enter_redirect(char *entry, char *cmd, char **envp)
 	char	**str2;
 
 	path = ft_env(envp);
-	// printf("%s\n", path);
 	str2 = ft_split(cmd, ' '); // passe de "ls -la" a "ls" "-la" liberer str2
 	fdopen = open(entry, O_RDONLY);
 	path = ft_path_tester(path, str[0]);
 	dup2(fdopen, STDIN_FILENO);
 	close(fdopen);
-	// printf("%s\n", entry);
-	execve(path, str, NULL);
+	execve(path, str2, NULL);
 }
 
 int	main(int argc, char *argv[], char **envp)
 {
-	enter_redirect("/Users/tkempf-e/Desktop/minishell_redirect.c/test", "cat", envp);
+	char	*file = "test";
+	char	*cmd = "ls";
+	
+	enter_redirect(file, cmd, envp);
 	return (0);
 }
 
