@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 14:57:32 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/10/21 14:59:28 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/10/24 17:23:46 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -184,19 +184,33 @@ char	*ft_env(char **envp)
 // cmd < entry
 // cmd utilise entry comme entree standard
 //piper entry sur stdin
-void	enter_redirect(char *entry, char *cmd, char **envp)
+void	enter_redirect(char *entry, char *cmd, char **envp)//works
 {
 	int		fdopen;
-	int		fd[2];
 	char	*path;
-	char	*str[] = {cmd, entry, NULL};
 	char	**str2;
 
 	path = ft_env(envp);
-	str2 = ft_split(cmd, ' '); // passe de "ls -la" a "ls" "-la" liberer str2
+	str2 = ft_split(cmd, ' ');
 	fdopen = open(entry, O_RDONLY);
-	path = ft_path_tester(path, str[0]);
+	path = ft_path_tester(path, cmd);
 	dup2(fdopen, STDIN_FILENO);
+	close(fdopen);
+	execve(path, str2, NULL);
+}
+
+// cmd > exit
+//ce qui devrait aller sur la sortie standard (par défaut, le terminal), doit plutôt être stocké dans un fichier.
+void	exit_redirect(char *cmd, char *exit, char **envp)
+{
+	int		fdopen;
+	char	**str2;
+	char	*path;
+
+	fdopen = open(exit, O_RDWR);
+	path = ft_env(envp);
+	str2 = ft_split(cmd, ' ');
+	dup2(fdopen, STDOUT_FILENO);
 	close(fdopen);
 	execve(path, str2, NULL);
 }
@@ -206,25 +220,10 @@ int	main(int argc, char *argv[], char **envp)
 	char	*file = "test";
 	char	*cmd = "ls";
 	
-	enter_redirect(file, cmd, envp);
+	// enter_redirect(file, cmd, envp);
+	exit_redirect(file, cmd, envp);
 	return (0);
 }
-
-// cmd > exit
-//ce qui devrait aller sur la sortie standard (par défaut, le terminal), doit plutôt être stocké dans un fichier.
-// void	exit_redirect(char *cmd, char *exit)
-// {
-// 	int		fdopen;
-
-// 	fdopen = open(cmd, O_RDONLY);
-// 	dup2(fd[0], STDIN_FILENO);
-// 	dup2(fd2[1], STDOUT_FILENO);
-// 	close(fd[0]);
-// 	close(fd[1]);
-// 	close(fd2[1]);
-// 	close(fd2[0]);
-// 	//execve(path, cmd, char **envp);
-// }
 
 // <<
 
