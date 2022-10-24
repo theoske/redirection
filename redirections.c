@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 14:57:32 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/10/24 17:23:46 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/10/24 18:12:43 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -199,26 +199,63 @@ void	enter_redirect(char *entry, char *cmd, char **envp)//works
 	execve(path, str2, NULL);
 }
 
+void	ft_putstr_fd(char *s, int fd)
+{
+	int		i;
+
+	i = 0;
+	while (s[i])
+	{
+		write(fd, &(s[i]), 1);
+		i++;
+	}
+}
+
+char	*ft_fdtostr(int fd)
+{
+	char	*str;
+	char	buffer[2];
+	int		octet;
+
+	str = NULL;
+	octet = read(fd, buffer, 1);
+	buffer[1] = 0;
+	str = ft_strjoin(str, buffer);
+	while (octet > 0)
+	{
+		octet = read(fd, buffer, 1);
+		buffer[octet] = 0;
+		str = ft_strjoin(str, buffer);
+	}
+	return (str);
+}
+
 // cmd > exit
 //ce qui devrait aller sur la sortie standard (par défaut, le terminal), doit plutôt être stocké dans un fichier.
 void	exit_redirect(char *cmd, char *exit, char **envp)
 {
 	int		fdopen;
+	int		fd[2];
 	char	**str2;
 	char	*path;
 
-	fdopen = open(exit, O_RDWR);
+	fdopen = open(exit, O_CREAT | O_RDWR | O_TRUNC, 0644);
 	path = ft_env(envp);
 	str2 = ft_split(cmd, ' ');
-	dup2(fdopen, STDOUT_FILENO);
-	close(fdopen);
+	path = ft_path_tester(path, cmd);
+	pipe(fd);
+	dup2(fd[1], STDOUT_FILENO);
 	execve(path, str2, NULL);
+	ft_putstr_fd(/*str to put in file*/ft_fdtostr(fd[0]), fdopen);
+	close(fd[0]);
+	close(fd[1]);
+	close(fdopen);
 }
 
-int	main(int argc, char *argv[], char **envp)
+int	main(int argc, char *argv[], char **envp)// pipex file1 cmd1 cmd2 file2
 {
 	char	*file = "test";
-	char	*cmd = "ls";
+	char	*cmd = "echo miam";
 	
 	// enter_redirect(file, cmd, envp);
 	exit_redirect(file, cmd, envp);
