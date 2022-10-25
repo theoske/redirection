@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 14:57:32 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/10/24 18:12:43 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/10/25 14:04:36 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -232,21 +232,22 @@ char	*ft_fdtostr(int fd)
 
 // cmd > exit
 //ce qui devrait aller sur la sortie standard (par défaut, le terminal), doit plutôt être stocké dans un fichier.
-void	exit_redirect(char *cmd, char *exit, char **envp)
+void	exit_redirect(char *exit, char *cmd, char **envp)
 {
 	int		fdopen;
 	int		fd[2];
 	char	**str2;
 	char	*path;
 
-	fdopen = open(exit, O_CREAT | O_RDWR | O_TRUNC, 0644);
 	path = ft_env(envp);
 	str2 = ft_split(cmd, ' ');
-	path = ft_path_tester(path, cmd);
+	path = ft_path_tester(path, str2[0]);
+	fdopen = open(exit, O_CREAT | O_RDWR | O_TRUNC, 0644);
 	pipe(fd);
 	dup2(fd[1], STDOUT_FILENO);
+	close(fd[1]);
 	execve(path, str2, NULL);
-	ft_putstr_fd(/*str to put in file*/ft_fdtostr(fd[0]), fdopen);
+	ft_putstr_fd(ft_fdtostr(fd[0]), fdopen);
 	close(fd[0]);
 	close(fd[1]);
 	close(fdopen);
