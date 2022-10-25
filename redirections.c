@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 14:57:32 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/10/25 14:04:36 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/10/25 16:43:28 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -242,15 +242,20 @@ void	exit_redirect(char *exit, char *cmd, char **envp)
 	path = ft_env(envp);
 	str2 = ft_split(cmd, ' ');
 	path = ft_path_tester(path, str2[0]);
-	fdopen = open(exit, O_CREAT | O_RDWR | O_TRUNC, 0644);
+	
+	fdopen = open(exit, O_RDWR);
+	
 	pipe(fd);
+	
 	dup2(fd[1], STDOUT_FILENO);
+	
+	execve(path, str2, NULL);// va dans fd
 	close(fd[1]);
-	execve(path, str2, NULL);
-	ft_putstr_fd(ft_fdtostr(fd[0]), fdopen);
+	path = ft_fdtostr(fd[0]);
+	ft_putstr_fd(path, fdopen);
 	close(fd[0]);
-	close(fd[1]);
 	close(fdopen);
+	free (path);
 }
 
 int	main(int argc, char *argv[], char **envp)// pipex file1 cmd1 cmd2 file2
