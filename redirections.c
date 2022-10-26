@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 14:57:32 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/10/26 17:34:24 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/10/26 18:09:40 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -260,17 +260,42 @@ void	exit_redirect(char *exit, char *cmd, char **envp)
 	waitpid(pid, 0, 0);
 }
 
+void	exit_append_redirect(char *exit, char *cmd, char **envp)
+{
+	int		fdopen;
+	int		fd[2];
+	char	**str2;
+	char	*path;
+	int		pid;
+
+	str2 = ft_split(cmd, ' ');
+	path = ft_path_tester(ft_env(envp), str2[0]);
+	pipe(fd);
+	pid = fork();
+	if (pid == 0)
+	{
+		close(fd[0]);
+		dup2(fd[1], STDOUT_FILENO);
+		close(fd[1]);
+		execve(path, str2, envp);
+	}
+	close(fd[1]);
+	path = ft_fdtostr(fd[0]);
+	close(fd[0]);
+	fdopen = open(exit, O_CREAT | O_RDWR | O_APPEND, 0644);
+	ft_putstr_fd(path, fdopen);
+	close(fdopen);
+	waitpid(pid, 0, 0);
+}
+
 int	main(int argc, char *argv[], char **envp)// pipex file1 cmd1 cmd2 file2
 {
 	char	*file = "test";
-	char	*cmd = "echo miam";
+	char	*cmd = "pwd";
 	
 	// enter_redirect(file, cmd, envp);
-	exit_redirect(file, cmd, envp);
+	exit_append_redirect(file, cmd, envp);
 	return (0);
 }
 
 // <<
-
-// >>
-
