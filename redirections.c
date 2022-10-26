@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 14:57:32 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/10/25 16:43:28 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/10/26 16:26:48 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -196,7 +196,7 @@ void	enter_redirect(char *entry, char *cmd, char **envp)//works
 	path = ft_path_tester(path, cmd);
 	dup2(fdopen, STDIN_FILENO);
 	close(fdopen);
-	execve(path, str2, NULL);
+	execve(path, str2, envp);
 }
 
 void	ft_putstr_fd(char *s, int fd)
@@ -211,6 +211,30 @@ void	ft_putstr_fd(char *s, int fd)
 	}
 }
 
+char	*ft_charjoin(char *str, char c)
+{
+	char	*str2;
+	int		i;
+
+	if (!str)
+	{
+		str = malloc(sizeof(char) * 2);
+		str[0] = c;
+		str[1] = 0;
+		return (str);
+	}
+	str2 = malloc(sizeof(char) * ft_strlen(str) + 2);
+	i = 0;
+	while (str[i])
+	{
+		str2[i] = str[i];
+		i++;
+	}
+	str2[i++] = c;
+	str2[i] = 0;
+	return (str2);
+}
+
 char	*ft_fdtostr(int fd)
 {
 	char	*str;
@@ -220,12 +244,12 @@ char	*ft_fdtostr(int fd)
 	str = NULL;
 	octet = read(fd, buffer, 1);
 	buffer[1] = 0;
-	str = ft_strjoin(str, buffer);
+	str = ft_charjoin(str, buffer[0]);
 	while (octet > 0)
 	{
 		octet = read(fd, buffer, 1);
 		buffer[octet] = 0;
-		str = ft_strjoin(str, buffer);
+		str = ft_charjoin(str, buffer[0]);
 	}
 	return (str);
 }
@@ -242,20 +266,18 @@ void	exit_redirect(char *exit, char *cmd, char **envp)
 	path = ft_env(envp);
 	str2 = ft_split(cmd, ' ');
 	path = ft_path_tester(path, str2[0]);
-	
-	fdopen = open(exit, O_RDWR);
-	
 	pipe(fd);
-	
 	dup2(fd[1], STDOUT_FILENO);
 	
-	execve(path, str2, NULL);// va dans fd
-	close(fd[1]);
+	execve(path, str2, NULL);// rentre dans un nouveau processus et continue pas prog
+	fdopen = open(exit, O_CREAT | O_RDWR | O_TRUNC, 0644);
 	path = ft_fdtostr(fd[0]);
+	
+	
 	ft_putstr_fd(path, fdopen);
-	close(fd[0]);
+	close (fd[0]);
+	close(fd[1]);
 	close(fdopen);
-	free (path);
 }
 
 int	main(int argc, char *argv[], char **envp)// pipex file1 cmd1 cmd2 file2
