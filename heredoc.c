@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/03 14:54:59 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/11/03 18:06:15 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/11/03 19:23:30 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -200,7 +200,7 @@ int	ft_strcmp(char *str1, char *str2)
 	cmd << delimiter
 	faire que cat lise de lentree standard qui est dup avec str
 */
-void	here_doc(char *cmd, char *delimiter, char	**envp)
+void	here_doc(char *cmd, char *delimiter, char **envp)
 {
 	char	*str;
 	char	*path;
@@ -214,13 +214,15 @@ void	here_doc(char *cmd, char *delimiter, char	**envp)
 		line = readline("heredoc> ");
 		str = ft_strjoin(str, line);
 	}
-	cmd_tab = ft_split(cmd, ' ');
-	path = ft_path_tester(ft_env(envp), cmd_tab[0]);
+	// printf("%s\n", str);
+	// segfault
+	// cmd_tab = ft_split(cmd, ' ');
+	// path = ft_path_tester(ft_env(envp), cmd_tab[0]);
 	
-	execve(path, cmd_tab, envp);
+	// execve(path, cmd_tab, envp);
 }
 
-int	main(int argc, char **argv, char **envp)
+int	main(int argc, char *argv[], char **envp)
 {
 	here_doc(argv[1], argv[3], envp);
 	return (0);
