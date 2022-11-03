@@ -1,20 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   redirections.c                                     :+:      :+:    :+:   */
+/*   heredoc.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/19 14:57:32 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/11/03 17:45:02 by tkempf-e         ###   ########.fr       */
+/*   Created: 2022/11/03 14:54:59 by tkempf-e          #+#    #+#             */
+/*   Updated: 2022/11/03 18:06:15 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-# include <stdlib.h>
-# include <unistd.h>
-# include <errno.h>
-# include <fcntl.h>
-# include <stdio.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <readline/readline.h>
+#include <readline/history.h>
+#include <sys/types.h>
 
 size_t	ft_strlen(const char *s)
 {
@@ -149,6 +150,21 @@ char	**ft_split(char const *s, char c)
 	return (tab);
 }
 
+char	*ft_env(char **envp)
+{
+	int		i;
+
+	i = 0;
+	while (envp[i])
+	{
+		if (envp[i][0] == 'P' && envp[i][1] == 'A' && envp[i][2] == 'T'
+		&& envp[i][3] == 'H')
+			return (envp[i] + 5);
+		i++;
+	}
+	return (NULL);
+}
+
 char	*ft_path_tester(char *totest, char *cmd)
 {
 	char	**tab;
@@ -166,135 +182,46 @@ char	*ft_path_tester(char *totest, char *cmd)
 	return (NULL);
 }
 
-char	*ft_env(char **envp)
+int	ft_strcmp(char *str1, char *str2)
 {
 	int		i;
 
+	if (!str1 && !str2)
+		return (0);
 	i = 0;
-	while (envp[i])
-	{
-		if (envp[i][0] == 'P' && envp[i][1] == 'A' && envp[i][2] == 'T'
-		&& envp[i][3] == 'H')
-			return (envp[i] + 5);
+	while (str1[i] == str2[i])
 		i++;
-	}
-	return (NULL);
-}
-
-// cmd < entry
-// cmd utilise entry comme entree standard
-//piper entry sur stdin
-void	enter_redirect(char *entry, char *cmd, char **envp)
-{
-	int		fdopen;
-	char	*path;
-	char	**str2;
-
-	path = ft_env(envp);
-	str2 = ft_split(cmd, ' ');
-	fdopen = open(entry, O_RDONLY);
-	path = ft_path_tester(path, cmd);
-	dup2(fdopen, STDIN_FILENO);
-	close(fdopen);
-	execve(path, str2, envp);
-}
-
-void	ft_putstr_fd(char *s, int fd)
-{
-	int		i;
-
-	i = 0;
-	while (s[i])
-	{
-		write(fd, &(s[i]), 1);
-		i++;
-	}
-}
-
-char	*ft_fdtostr(int fd)
-{
-	char	*str;
-	char	buffer[2];
-	int		octet;
-
-	str = NULL;
-	octet = read(fd, buffer, 1);
-	buffer[1] = 0;
-	str = ft_strjoin(str, buffer);
-	while (octet > 0)
-	{
-		octet = read(fd, buffer, 1);
-		buffer[octet] = 0;
-		str = ft_strjoin(str, buffer);
-	}
-	return (str);
-}
-
-// cmd > exit
-//ce qui devrait aller sur la sortie standard (par défaut, le terminal), doit plutôt être stocké dans un fichier.
-void	exit_redirect(char *exit, char *cmd, char **envp)
-{
-	int		fdopen;
-	int		fd[2];
-	char	**str2;
-	char	*path;
-	int		pid;
-
-	str2 = ft_split(cmd, ' ');
-	path = ft_path_tester(ft_env(envp), str2[0]);
-	pipe(fd);
-	pid = fork();
-	if (pid == 0)
-	{
-		close(fd[0]);
-		dup2(fd[1], STDOUT_FILENO);
-		close(fd[1]);
-		execve(path, str2, envp);
-	}
-	close(fd[1]);
-	path = ft_fdtostr(fd[0]);
-	close(fd[0]);
-	fdopen = open(exit, O_CREAT | O_RDWR | O_TRUNC, 0644);
-	ft_putstr_fd(path, fdopen);
-	close(fdopen);
-	waitpid(pid, 0, 0);
-}
-
-void	exit_append_redirect(char *exit, char *cmd, char **envp)
-{
-	int		fdopen;
-	int		fd[2];
-	char	**str2;
-	char	*path;
-	int		pid;
-
-	str2 = ft_split(cmd, ' ');
-	path = ft_path_tester(ft_env(envp), str2[0]);
-	pipe(fd);
-	pid = fork();
-	if (pid == 0)
-	{
-		close(fd[0]);
-		dup2(fd[1], STDOUT_FILENO);
-		close(fd[1]);
-		execve(path, str2, envp);
-	}
-	close(fd[1]);
-	path = ft_fdtostr(fd[0]);
-	close(fd[0]);
-	fdopen = open(exit, O_CREAT | O_RDWR | O_APPEND, 0644);
-	ft_putstr_fd(path, fdopen);
-	close(fdopen);
-	waitpid(pid, 0, 0);
-}
-
-int	main(int argc, char *argv[], char **envp)// pipex file1 cmd1 cmd2 file2
-{
-	char	*file = "test";
-	char	*cmd = "pwd";
-	
-	// enter_redirect(file, cmd, envp);
-	exit_append_redirect(file, cmd, envp);
+	if (str1[i] || str2[i])
+		return (-1);
 	return (0);
 }
 
+/*
+	cmd << delimiter
+	faire que cat lise de lentree standard qui est dup avec str
+*/
+void	here_doc(char *cmd, char *delimiter, char	**envp)
+{
+	char	*str;
+	char	*path;
+	char	*line;
+	char	**cmd_tab;
+
+	str = 0;
+	line = 0;
+	while (!ft_strcmp(line, delimiter))
+	{
+		line = readline("heredoc> ");
+		str = ft_strjoin(str, line);
+	}
+	cmd_tab = ft_split(cmd, ' ');
+	path = ft_path_tester(ft_env(envp), cmd_tab[0]);
+	
+	execve(path, cmd_tab, envp);
+}
+
+int	main(int argc, char **argv, char **envp)
+{
+	here_doc(argv[1], argv[3], envp);
+	return (0);
+}
