@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 14:57:32 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/10/26 18:09:40 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/11/03 14:54:41 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -298,4 +298,3 @@ int	main(int argc, char *argv[], char **envp)// pipex file1 cmd1 cmd2 file2
 	return (0);
 }
 
-// <<
