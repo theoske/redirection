@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/03 14:54:59 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/11/04 15:35:41 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/11/04 15:54:50 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -210,6 +210,24 @@ void	ft_putstr_fd(char *s, int fd)
 	}
 }
 
+void	enter_redirect(char *entry, char *cmd, char **envp)
+{
+	int		fdopen;
+	char	*path;
+	char	**str2;
+	int		pid;
+
+	path = ft_env(envp);
+	str2 = ft_split(cmd, ' ');
+	fdopen = open(entry, O_RDONLY);
+	path = ft_path_tester(path, cmd);
+	dup2(fdopen, STDIN_FILENO);
+	close(fdopen);
+	pid = fork();
+	if (pid == 0)
+		execve(path, str2, envp);
+}
+
 /*
 	cmd << delimiter
 	faire que cat lise de lentree standard qui est dup avec str
@@ -231,22 +249,16 @@ void	here_doc(char *cmd, char *delimiter, char **envp)
 			break ;
 		str = ft_strjoin(str, ft_strjoin(line, "\n"));
 	}
-	printf("%s", str);
-	// fd = open("heredoc", O_CREAT, O_RDWR);
-	// ft_putstr_fd(str, fd);
-	// printf("%s\n", str);
-	// segfault
-	// cmd_tab = ft_split(cmd, ' ');
-	// path = ft_path_tester(ft_env(envp), cmd_tab[0]);
-	// fork
-	// execve(path, cmd_tab, envp);
-	// free (str);
-	// close(fd);
+	// printf("%s", str);
+	fd = open("hairdoc", O_CREAT, O_RDWR);
+	ft_putstr_fd(str, fd);
+	free (str);
+	close(fd);
+	enter_redirect("hairdoc", cmd, envp);
 }
 
 int	main(int argc, char *argv[], char **envp)
 {
-	printf("argv1 : %s\nargv3 : %s\n", argv[1], argv[3]);
 	here_doc(argv[1], argv[3], envp);
 	return (0);
 }
