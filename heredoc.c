@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/03 14:54:59 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/11/03 19:23:30 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/11/04 15:35:41 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <sys/types.h>
+#include <fcntl.h>
 
 size_t	ft_strlen(const char *s)
 {
@@ -189,11 +190,24 @@ int	ft_strcmp(char *str1, char *str2)
 	if (!str1 && !str2)
 		return (0);
 	i = 0;
-	while (str1[i] == str2[i])
+	while (str1[i] && str2[i] && str1[i] == str2[i])
 		i++;
-	if (str1[i] || str2[i])
+	if (!str1[i] && !str2[i])
+		return (0);
+	else
 		return (-1);
-	return (0);
+}
+
+void	ft_putstr_fd(char *s, int fd)
+{
+	int		i;
+
+	i = 0;
+	while (s[i])
+	{
+		write(fd, &(s[i]), 1);
+		i++;
+	}
 }
 
 /*
@@ -206,24 +220,33 @@ void	here_doc(char *cmd, char *delimiter, char **envp)
 	char	*path;
 	char	*line;
 	char	**cmd_tab;
+	int		fd;
 
-	str = 0;
 	line = 0;
-	while (!ft_strcmp(line, delimiter))
+	str = 0;
+	while (1)
 	{
-		line = readline("heredoc> ");
-		str = ft_strjoin(str, line);
+		line = readline("hairdoc> ");
+		if (ft_strcmp(line, delimiter) == 0)
+			break ;
+		str = ft_strjoin(str, ft_strjoin(line, "\n"));
 	}
+	printf("%s", str);
+	// fd = open("heredoc", O_CREAT, O_RDWR);
+	// ft_putstr_fd(str, fd);
 	// printf("%s\n", str);
 	// segfault
 	// cmd_tab = ft_split(cmd, ' ');
 	// path = ft_path_tester(ft_env(envp), cmd_tab[0]);
-	
+	// fork
 	// execve(path, cmd_tab, envp);
+	// free (str);
+	// close(fd);
 }
 
 int	main(int argc, char *argv[], char **envp)
 {
+	printf("argv1 : %s\nargv3 : %s\n", argv[1], argv[3]);
 	here_doc(argv[1], argv[3], envp);
 	return (0);
 }
