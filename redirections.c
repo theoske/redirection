@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 14:57:32 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/11/03 17:45:02 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/11/07 18:01:29 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -183,7 +183,7 @@ char	*ft_env(char **envp)
 
 // cmd < entry
 // cmd utilise entry comme entree standard
-//piper entry sur stdin
+// piper entry sur stdin
 void	enter_redirect(char *entry, char *cmd, char **envp)
 {
 	int		fdopen;
@@ -288,13 +288,38 @@ void	exit_append_redirect(char *exit, char *cmd, char **envp)
 	waitpid(pid, 0, 0);
 }
 
+int	ft_pipe(char *cmd, int inputfd, char **envp)// faire en sorte boucle en retournant fd 0
+{
+	int		fd[2];
+	char	**str2;
+	char	*path;
+	int		pid;
+
+	str2 = ft_split(cmd, ' ');
+	path = ft_path_tester(ft_env(envp), str2[0]);
+	pipe(fd);
+	pid = fork();
+	if (pid == 0)
+	{
+		close(fd[0]);
+		dup2(inputfd, STDIN_FILENO);
+		close(inputfd);
+		dup2(fd[1], STDOUT_FILENO);
+		close(fd[1]);
+		execve(path, str2, envp);
+	}
+	close(fd[1]);
+	waitpid(pid, 0, 0);
+	return (fd[0]);
+}
+
 int	main(int argc, char *argv[], char **envp)// pipex file1 cmd1 cmd2 file2
 {
-	char	*file = "test";
-	char	*cmd = "pwd";
-	
-	// enter_redirect(file, cmd, envp);
-	exit_append_redirect(file, cmd, envp);
+	int fd;
+	fd = ft_pipe("cat test", STDIN_FILENO, envp);
+	fd = ft_pipe("wc -c", fd, envp);
+	printf("%s", ft_fdtostr(fd));
+	close (fd);
 	return (0);
 }
 
