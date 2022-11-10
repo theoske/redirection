@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/09 16:55:26 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/11/09 20:29:11 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/11/10 16:23:28 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include <string.h>
 # include <readline/readline.h>
 # include <readline/history.h>
+# include </Users/tkempf-e/.brew/Cellar/readline/8.2.1/include/readline/readline.h>
 
 struct sigaction old_action;
 
