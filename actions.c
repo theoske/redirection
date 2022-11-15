@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/09 16:55:26 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/11/15 15:22:21 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/11/15 17:20:02 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,19 +35,18 @@ void ft_readline()
 
 void handle_signals(int signo)
 {
-	if (signo == SIGINT)
+	if (signo == SIGINT)//ctrl-c
 	{
-		rl_redisplay();
+		printf("\n");
 		rl_on_new_line();
-		
 		rl_replace_line("", 0);
-		
+		rl_redisplay();
 	}
-	else if (signo == SIGQUIT)
+	else if (signo == SIGQUIT)/* ctrl-\  */
 	{
 		rl_on_new_line();
 		rl_redisplay();
-		printf("  \b\b");
+		printf(" \b\b");
 		exit(0);
 	}
 }
