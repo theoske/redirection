@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/09 16:55:26 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/11/16 15:21:40 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/11/16 15:32:06 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ void handle_signals(int signo)
 		printf("  \b\b");
 	}
 }
-// gcc -lreadline -L/Users/tkempf-e/.brew/opt/readline/lib -I/Users/tkempf-e/.brew/opt/readline/include actions.c
+// gcc -lreadline -L/Users/tkempf-e/.brew/opt/readline/lib -I/Users/tkempf-e/.brew/opt/readline/include signals.c
 int	main(int argc, char *argv[], char **envp)
 {
 	signal(SIGINT, handle_signals);
