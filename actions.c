@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/09 16:55:26 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/11/15 17:20:02 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/11/16 14:38:33 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,9 +21,7 @@
 # include <readline/history.h>
 # include "readline/include/readline/readline.h"
 
-struct sigaction old_action;
-
-void ft_readline();
+// struct sigaction old_action;
 
 void ft_readline()
 {
@@ -53,11 +51,10 @@ void handle_signals(int signo)
 // gcc -lreadline -L/Users/tkempf-e/.brew/opt/readline/lib -I/Users/tkempf-e/.brew/opt/readline/include actions.c
 int	main(int argc, char *argv[], char **envp)
 {
-	int fd;
-	struct sigaction action;
+	// struct sigaction action;
 
-	action.sa_handler = &handle_signals;
-	action.sa_flags = SA_RESTART;
+	// action.sa_handler = &handle_signals;
+	// action.sa_flags = SA_RESTART;
 	// sigaction(SIGINT, &action, NULL);
 	signal(SIGINT, handle_signals);
 	signal(SIGQUIT, handle_signals);
