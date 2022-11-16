@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 14:57:32 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/11/07 18:01:29 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/11/10 16:17:58 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,11 @@
 # include <errno.h>
 # include <fcntl.h>
 # include <stdio.h>
+# include <signal.h>
+# include <string.h>
+# include <readline/readline.h>
+# include <readline/history.h>
+#include </Users/tkempf-e/.brew/Cellar/readline/8.2.1/include/readline/readline.h>
 
 size_t	ft_strlen(const char *s)
 {
@@ -312,14 +317,3 @@ int	ft_pipe(char *cmd, int inputfd, char **envp)// faire en sorte boucle en reto
 	waitpid(pid, 0, 0);
 	return (fd[0]);
 }
-
-int	main(int argc, char *argv[], char **envp)// pipex file1 cmd1 cmd2 file2
-{
-	int fd;
-	fd = ft_pipe("cat test", STDIN_FILENO, envp);
-	fd = ft_pipe("wc -c", fd, envp);
-	printf("%s", ft_fdtostr(fd));
-	close (fd);
-	return (0);
-}
-

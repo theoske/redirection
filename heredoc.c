@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/03 14:54:59 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/11/04 16:52:47 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/11/04 16:54:16 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -249,11 +249,11 @@ void	here_doc(char *cmd, char *delimiter, char **envp)
 			break ;
 		str = ft_strjoin(str, ft_strjoin(line, "\n"));
 	}
-	fd = open("hairdoc", O_CREAT | O_RDWR | O_TRUNC, 0644);
+	fd = open(".hairdoc", O_CREAT | O_RDWR | O_TRUNC, 0644);
 	ft_putstr_fd(str, fd);
 	free (str);
 	close(fd);
-	enter_redirect("hairdoc", cmd, envp);
+	enter_redirect(".hairdoc", cmd, envp);
 }
 
 int	main(int argc, char *argv[], char **envp)
