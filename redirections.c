@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 14:57:32 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/11/10 16:17:58 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/11/17 17:08:36 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -311,9 +311,90 @@ int	ft_pipe(char *cmd, int inputfd, char **envp)// faire en sorte boucle en reto
 		close(inputfd);
 		dup2(fd[1], STDOUT_FILENO);
 		close(fd[1]);
-		execve(path, str2, envp);
+		execve(path, str2, envp); // exec
 	}
 	close(fd[1]);
 	waitpid(pid, 0, 0);
 	return (fd[0]);
+}
+
+int	redirection_checker(char *str)
+{
+	int		i;
+
+	i = 0;
+	while (str[i])
+	{
+		if (str[i] == '\'')
+		{
+			i++;
+			while (str[i] && str[i] != '\'')
+				i++;
+		}
+		if (str[i] == '\"')
+		{
+			i++;
+			while (str[i] && str[i] != '\"')
+				i++;
+		}
+		if (i > 0 && (str[i] == '<' || str[i] == '>'))
+			return (i);
+		i++;
+	}
+	return (-1);
+}
+
+char	*cmd_size(char *str, int i)
+{
+	char	*ret;
+	int		j;
+	
+	ret = malloc(sizeof(char) * (i + 1));
+	ret[i] = 0;
+	j = 0;
+	while (ret[j])
+	{
+		ret[j] = str[j];
+		j++;
+	}
+	return (ret);
+}
+
+char	*cmd_size(char *str, int i)
+{
+	char	*ret;
+	int		j;
+	
+	j = 0;
+	while (str[j])
+		j++;
+	ret = malloc(sizeof(char) * (j - i + 1));
+	ret[j - i] = 0;
+	j = 0;
+	while (ret[j])
+	{
+		ret[j] = str[j];
+		j++;
+	}
+	return (ret);
+}
+
+// pas forcement de redirection
+// cmd  redirection fichier
+// passer au dela "test > test" et 'test > test'
+// echo "je mange" > test1 > test2     met dans test2 et cree juste s1
+void	redirections(char *str)
+{
+	int		i;
+	char	*cmd;
+	char	*file;
+
+	i = redirection_checker(str);
+	if (i == -1)
+		return ;
+	cmd = cmd_size(str, i);
+	file = file_size(str, i);
+	
+	free(cmd);
+	free(file);
 }
