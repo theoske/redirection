@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 14:57:32 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/11/17 17:08:36 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/11/18 18:05:53 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -311,7 +311,7 @@ int	ft_pipe(char *cmd, int inputfd, char **envp)// faire en sorte boucle en reto
 		close(inputfd);
 		dup2(fd[1], STDOUT_FILENO);
 		close(fd[1]);
-		execve(path, str2, envp); // exec
+		execve(path, str2, envp);
 	}
 	close(fd[1]);
 	waitpid(pid, 0, 0);
@@ -344,41 +344,6 @@ int	redirection_checker(char *str)
 	return (-1);
 }
 
-char	*cmd_size(char *str, int i)
-{
-	char	*ret;
-	int		j;
-	
-	ret = malloc(sizeof(char) * (i + 1));
-	ret[i] = 0;
-	j = 0;
-	while (ret[j])
-	{
-		ret[j] = str[j];
-		j++;
-	}
-	return (ret);
-}
-
-char	*cmd_size(char *str, int i)
-{
-	char	*ret;
-	int		j;
-	
-	j = 0;
-	while (str[j])
-		j++;
-	ret = malloc(sizeof(char) * (j - i + 1));
-	ret[j - i] = 0;
-	j = 0;
-	while (ret[j])
-	{
-		ret[j] = str[j];
-		j++;
-	}
-	return (ret);
-}
-
 // pas forcement de redirection
 // cmd  redirection fichier
 // passer au dela "test > test" et 'test > test'
@@ -386,15 +351,41 @@ char	*cmd_size(char *str, int i)
 void	redirections(char *str)
 {
 	int		i;
+	int		j;
 	char	*cmd;
 	char	*file;
 
 	i = redirection_checker(str);
 	if (i == -1)
 		return ;
-	cmd = cmd_size(str, i);
-	file = file_size(str, i);
+	cmd = malloc(sizeof(char) * i + 1);
+	cmd[i] = 0;
+	file = malloc(sizeof(char) * (ft_strlen(str) - i));
+	file[ft_strlen(str) - i - 1] = 0;
+	j = 0;
+	while (i > j)
+	{
+		cmd[j] = str[j];
+		j++;
+	}
+	j++;
+	i = 0;
+	while (str[j])
+	{
+		file[i] = str[j];
+		i++;
+		j++;
+	}
 	
+	printf("str : %s\ncmd : %s\nfile : %s\n", str, cmd, file);
+	
+	//redirect_options
 	free(cmd);
 	free(file);
+}
+
+int main()
+{
+	redirections("cat > test");
+	return (0);
 }
