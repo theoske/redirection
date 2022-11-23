@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 14:57:32 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/11/23 16:32:48 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/11/23 17:26:57 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -347,6 +347,23 @@ int	redirection_checker(char *str)
 	return (-1);
 }
 
+int	ft_isalnum(int c)
+{
+	if ((c <= 90 && c >= 65) || (c <= 122 && c >= 97) || (c >= 48 && c <= 57) || c == ' ')
+		return (0);
+	return (-1);
+}
+
+int	ft_test(char *str, int i)
+{
+	if (i > 0 && (str[i] != str[i + 1] && ft_isalnum(str[i]) == -1))
+	{
+		printf("Minishell: syntax error near unexpected token '%c'\n", str[i]);
+		return (-1);
+	}
+	return (0);
+}
+
 // faire options redirect
 
 // pas forcement de redirection
@@ -361,11 +378,8 @@ void	redirections(char *str)
 	char	*file;
 
 	i = redirection_checker(str);
-	if (i > 0 && ((str[i] == '>' && str[i - 1] == '<') || (str[i] == '<' && str[i - 1] == '>')))
-	{
-		printf("Minishell: syntax error near unexpected token '<'\n");
+	if (ft_test(str, i) == -1)
 		return ;
-	}
 	if (i == -1)
 		return ;
 	cmd = malloc(sizeof(char) * i + 1);
@@ -395,6 +409,6 @@ void	redirections(char *str)
 
 int main()
 {
-	redirections("echo <> test");
+	redirections("echo >> test");
 	return (0);
 }
