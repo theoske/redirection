@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 14:57:32 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/11/23 17:26:57 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/11/23 17:47:09 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -365,6 +365,17 @@ int	ft_test(char *str, int i)
 }
 
 // faire options redirect
+void	redirect_options(char *str, char *cmd, char *file, int i)
+{
+	if (str[i] == '>' && str[i + 1] == '>')
+		exit_append_redirect(file, cmd, 0);
+	else if (str[i] == '>')
+		exit_redirect(file, cmd, 0);
+	else if (str[i] == '<' && str[i + 1] == '<')
+		here_doc(cmd, file, 0);// dans autre file
+	else if (str[i] == '<')
+		enter_redirect(file, cmd, 0);
+}
 
 // pas forcement de redirection
 // cmd  redirection fichier
@@ -403,6 +414,7 @@ void	redirections(char *str)
 		j++;
 	}
 	printf("str : %s\ncmd : %s\nfile : %s\n", str, cmd, file);
+	redirect_options(str, cmd, file);
 	free(cmd);
 	free(file);
 }
