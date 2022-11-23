@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 14:57:32 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/11/23 17:47:09 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/11/23 18:41:20 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -356,7 +356,7 @@ int	ft_isalnum(int c)
 
 int	ft_test(char *str, int i)
 {
-	if (i > 0 && (str[i] != str[i + 1] && ft_isalnum(str[i]) == -1))
+	if (i > 0 && (str[i] != str[i + 1] && ft_isalnum(str[i + 1]) == -1))
 	{
 		printf("Minishell: syntax error near unexpected token '%c'\n", str[i]);
 		return (-1);
@@ -365,23 +365,26 @@ int	ft_test(char *str, int i)
 }
 
 // faire options redirect
-void	redirect_options(char *str, char *cmd, char *file, int i)
+void	redirect_options(char *str, char *cmd, char *file, char **envp)
 {
+	int		i;
+
+	i = redirection_checker(str);
 	if (str[i] == '>' && str[i + 1] == '>')
-		exit_append_redirect(file, cmd, 0);
+		exit_append_redirect(file, cmd, envp);
 	else if (str[i] == '>')
-		exit_redirect(file, cmd, 0);
-	else if (str[i] == '<' && str[i + 1] == '<')
-		here_doc(cmd, file, 0);// dans autre file
-	else if (str[i] == '<')
-		enter_redirect(file, cmd, 0);
+		exit_redirect(file, cmd, envp);
+	// else if (str[i] == '<' && str[i + 1] == '<')
+	// 	here_doc(cmd, file, 0);// dans autre file
+	// else if (str[i] == '<')
+	// 	enter_redirect(file, cmd, 0);
 }
 
 // pas forcement de redirection
 // cmd  redirection fichier
 // passer au dela "test > test" et 'test > test'
 // echo "je mange" > test1 > test2     met dans test2 et cree juste s1
-void	redirections(char *str)
+void	redirections(char *str, char **envp)
 {
 	int		i;
 	int		j;
@@ -414,13 +417,15 @@ void	redirections(char *str)
 		j++;
 	}
 	printf("str : %s\ncmd : %s\nfile : %s\n", str, cmd, file);
-	redirect_options(str, cmd, file);
+	redirect_options(str, cmd, file, envp);
 	free(cmd);
 	free(file);
 }
 
-int main()
+// echo >< test marche mais devrait pas
+// echo >) fai rien au lieu de error...
+int main(int argc, char **argv, char **envp)
 {
-	redirections("echo >> test");
+	redirections("echo je mange >< test", envp);
 	return (0);
 }
