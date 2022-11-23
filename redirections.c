@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 14:57:32 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/11/18 18:05:53 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/11/23 16:32:48 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -318,10 +318,13 @@ int	ft_pipe(char *cmd, int inputfd, char **envp)// faire en sorte boucle en reto
 	return (fd[0]);
 }
 
+//return l'index de la 1ere redirection
 int	redirection_checker(char *str)
 {
 	int		i;
+	int		counter;
 
+	counter = 0;
 	i = 0;
 	while (str[i])
 	{
@@ -337,12 +340,14 @@ int	redirection_checker(char *str)
 			while (str[i] && str[i] != '\"')
 				i++;
 		}
-		if (i > 0 && (str[i] == '<' || str[i] == '>'))
+		if (i > 0 && (str[i] == '<' || str[i] == '>') && (str[i] == str[i + 1] || str[i + 1] == ' '))
 			return (i);
 		i++;
 	}
 	return (-1);
 }
+
+// faire options redirect
 
 // pas forcement de redirection
 // cmd  redirection fichier
@@ -356,19 +361,26 @@ void	redirections(char *str)
 	char	*file;
 
 	i = redirection_checker(str);
+	if (i > 0 && ((str[i] == '>' && str[i - 1] == '<') || (str[i] == '<' && str[i - 1] == '>')))
+	{
+		printf("Minishell: syntax error near unexpected token '<'\n");
+		return ;
+	}
 	if (i == -1)
 		return ;
 	cmd = malloc(sizeof(char) * i + 1);
 	cmd[i] = 0;
-	file = malloc(sizeof(char) * (ft_strlen(str) - i));
-	file[ft_strlen(str) - i - 1] = 0;
 	j = 0;
 	while (i > j)
 	{
 		cmd[j] = str[j];
 		j++;
 	}
+	file = malloc(sizeof(char) * (ft_strlen(str) - i));
+	file[ft_strlen(str) - i - 1] = 0;
 	j++;
+	if (str[i + 1] == str[i])
+		j++;
 	i = 0;
 	while (str[j])
 	{
@@ -376,16 +388,13 @@ void	redirections(char *str)
 		i++;
 		j++;
 	}
-	
 	printf("str : %s\ncmd : %s\nfile : %s\n", str, cmd, file);
-	
-	//redirect_options
 	free(cmd);
 	free(file);
 }
 
 int main()
 {
-	redirections("cat > test");
+	redirections("echo <> test");
 	return (0);
 }
