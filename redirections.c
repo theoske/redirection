@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 14:57:32 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/11/24 17:12:41 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/11/24 17:53:43 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -470,7 +470,7 @@ char	*redirections(char *str, char **envp)
 	free(file);
 	return (ret);
 }
-// segfault avec certains nom de fichier
+// segfault a la fin
 int main(int argc, char **argv, char **envp)
 {
 	printf("%s\n", redirections("echo \"je mange\" << \% test", envp));
