@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 14:57:32 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/11/23 18:41:20 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/11/24 16:22:40 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -340,7 +340,7 @@ int	redirection_checker(char *str)
 			while (str[i] && str[i] != '\"')
 				i++;
 		}
-		if (i > 0 && (str[i] == '<' || str[i] == '>') && (str[i] == str[i + 1] || str[i + 1] == ' '))
+		if (i > 0 && (str[i] == '<' || str[i] == '>') && (str[i] == str[i - 1] || str[i - 1] == ' '))
 			return (i);
 		i++;
 	}
@@ -356,7 +356,8 @@ int	ft_isalnum(int c)
 
 int	ft_test(char *str, int i)
 {
-	if (i > 0 && (str[i] != str[i + 1] && ft_isalnum(str[i + 1]) == -1))
+	printf("stri %c  stri+1 %c\n", str[i], str[i + 1]);
+	if (i > 0 && (str[i + 1] != str[i] && ft_isalnum(str[i + 1]) == -1))
 	{
 		printf("Minishell: syntax error near unexpected token '%c'\n", str[i]);
 		return (-1);
@@ -370,13 +371,13 @@ void	redirect_options(char *str, char *cmd, char *file, char **envp)
 	int		i;
 
 	i = redirection_checker(str);
-	if (str[i] == '>' && str[i + 1] == '>')
+	if (str[i - 1] == '>' && str[i] == '>')
 		exit_append_redirect(file, cmd, envp);
-	else if (str[i] == '>')
+	else if (str[i - 1] == '>')
 		exit_redirect(file, cmd, envp);
-	// else if (str[i] == '<' && str[i + 1] == '<')
+	// else if (str[i - 1] == '<' && str[i] == '<')
 	// 	here_doc(cmd, file, 0);// dans autre file
-	// else if (str[i] == '<')
+	// else if (str[i - 1] == '<')
 	// 	enter_redirect(file, cmd, 0);
 }
 
@@ -426,6 +427,6 @@ void	redirections(char *str, char **envp)
 // echo >) fai rien au lieu de error...
 int main(int argc, char **argv, char **envp)
 {
-	redirections("echo je mange >< test", envp);
+	redirections("echo je mange >) test", envp);
 	return (0);
 }
