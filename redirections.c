@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 14:57:32 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/11/24 16:23:40 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/11/24 16:59:08 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,18 @@ size_t	ft_strlen(const char *s)
 	while (s[i])
 		i++;
 	return (i);
+}
+
+void	ft_putstr_fd(char *s, int fd)
+{
+	int		i;
+
+	i = 0;
+	while (s[i])
+	{
+		write(fd, &(s[i]), 1);
+		i++;
+	}
 }
 
 char	*ft_strjoin(char *s1, char *s2)
@@ -186,14 +198,27 @@ char	*ft_env(char **envp)
 	return (NULL);
 }
 
-// cmd < entry
-// cmd utilise entry comme entree standard
-// piper entry sur stdin
+int	ft_strcmp(char *str1, char *str2)
+{
+	int		i;
+
+	if (!str1 && !str2)
+		return (0);
+	i = 0;
+	while (str1[i] && str2[i] && str1[i] == str2[i])
+		i++;
+	if (!str1[i] && !str2[i])
+		return (0);
+	else
+		return (-1);
+}
+
 void	enter_redirect(char *entry, char *cmd, char **envp)
 {
 	int		fdopen;
 	char	*path;
 	char	**str2;
+	int		pid;
 
 	path = ft_env(envp);
 	str2 = ft_split(cmd, ' ');
@@ -201,19 +226,37 @@ void	enter_redirect(char *entry, char *cmd, char **envp)
 	path = ft_path_tester(path, cmd);
 	dup2(fdopen, STDIN_FILENO);
 	close(fdopen);
-	execve(path, str2, envp);
+	pid = fork();
+	if (pid == 0)
+		execve(path, str2, envp);
 }
 
-void	ft_putstr_fd(char *s, int fd)
+/*
+	cmd << delimiter
+	faire que cat lise de lentree standard qui est dup avec str
+*/
+void	here_doc(char *cmd, char *delimiter, char **envp)
 {
-	int		i;
+	char	*str;
+	char	*path;
+	char	*line;
+	char	**cmd_tab;
+	int		fd;
 
-	i = 0;
-	while (s[i])
+	line = 0;
+	str = 0;
+	while (1)
 	{
-		write(fd, &(s[i]), 1);
-		i++;
+		line = readline("hairdoc> ");
+		if (ft_strcmp(line, delimiter) == 0)
+			break ;
+		str = ft_strjoin(str, ft_strjoin(line, "\n"));
 	}
+	fd = open(".hairdoc", O_CREAT | O_RDWR | O_TRUNC, 0644);
+	ft_putstr_fd(str, fd);
+	free (str);
+	close(fd);
+	enter_redirect(".hairdoc", cmd, envp);
 }
 
 char	*ft_fdtostr(int fd)
@@ -356,7 +399,6 @@ int	ft_isalnum(int c)
 
 int	ft_test(char *str, int i)
 {
-	printf("stri %c  stri+1 %c\n", str[i], str[i + 1]);
 	if (i > 0 && (str[i + 1] != str[i] && ft_isalnum(str[i + 1]) == -1))
 	{
 		printf("Minishell: syntax error near unexpected token '%c'\n", str[i]);
@@ -371,32 +413,35 @@ void	redirect_options(char *str, char *cmd, char *file, char **envp)
 	int		i;
 
 	i = redirection_checker(str);
-	if (str[i - 1] == '>' && str[i] == '>')
+	if (str[i] == '>' && str[i + 1] == '>')
 		exit_append_redirect(file, cmd, envp);
-	else if (str[i - 1] == '>')
+	else if (str[i] == '>')
 		exit_redirect(file, cmd, envp);
-	// else if (str[i - 1] == '<' && str[i] == '<')
-	// 	here_doc(cmd, file, 0);// dans autre file
-	// else if (str[i - 1] == '<')
-	// 	enter_redirect(file, cmd, 0);
+	else if (str[i] == '<' && str[i + 1] == '<')
+		here_doc(cmd, file, 0);
+	else if (str[i] == '<')
+		enter_redirect(file, cmd, 0);
+	else
+		printf("bug");
 }
 
 // pas forcement de redirection
 // cmd  redirection fichier
 // passer au dela "test > test" et 'test > test'
 // echo "je mange" > test1 > test2     met dans test2 et cree juste s1
-void	redirections(char *str, char **envp)
+char	*redirections(char *str, char **envp)
 {
 	int		i;
 	int		j;
 	char	*cmd;
 	char	*file;
+	char	*ret;
 
 	i = redirection_checker(str);
 	if (ft_test(str, i) == -1)
-		return ;
+		return (str);
 	if (i == -1)
-		return ;
+		return (str);
 	cmd = malloc(sizeof(char) * i + 1);
 	cmd[i] = 0;
 	j = 0;
@@ -411,20 +456,23 @@ void	redirections(char *str, char **envp)
 	if (str[i + 1] == str[i])
 		j++;
 	i = 0;
-	while (str[j])
+	while (str[j] == ' ')
+		j++;
+	while (str[j] && str[j] != ' ')
 	{
 		file[i] = str[j];
 		i++;
 		j++;
 	}
-	printf("str : %s\ncmd : %s\nfile : %s\n", str, cmd, file);
 	redirect_options(str, cmd, file, envp);
+	ret = ft_strjoin(cmd, str + j);
 	free(cmd);
 	free(file);
+	return (ret);
 }
 
 int main(int argc, char **argv, char **envp)
 {
-	redirections("echo je mange >) test", envp);
+	printf("%s\n", redirections("echo < \% test", envp));
 	return (0);
 }
