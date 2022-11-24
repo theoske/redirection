@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 14:57:32 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/11/24 16:22:40 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/11/24 16:23:40 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -423,8 +423,6 @@ void	redirections(char *str, char **envp)
 	free(file);
 }
 
-// echo >< test marche mais devrait pas
-// echo >) fai rien au lieu de error...
 int main(int argc, char **argv, char **envp)
 {
 	redirections("echo je mange >) test", envp);
