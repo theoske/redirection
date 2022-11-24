@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 14:57:32 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/11/24 16:59:08 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/11/24 17:12:41 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -443,15 +443,14 @@ char	*redirections(char *str, char **envp)
 	if (i == -1)
 		return (str);
 	cmd = malloc(sizeof(char) * i + 1);
-	cmd[i] = 0;
 	j = 0;
 	while (i > j)
 	{
 		cmd[j] = str[j];
 		j++;
 	}
+	cmd[i] = 0;
 	file = malloc(sizeof(char) * (ft_strlen(str) - i));
-	file[ft_strlen(str) - i - 1] = 0;
 	j++;
 	if (str[i + 1] == str[i])
 		j++;
@@ -464,15 +463,16 @@ char	*redirections(char *str, char **envp)
 		i++;
 		j++;
 	}
+	file[i] = 0;
 	redirect_options(str, cmd, file, envp);
 	ret = ft_strjoin(cmd, str + j);
 	free(cmd);
 	free(file);
 	return (ret);
 }
-
+// segfault avec certains nom de fichier
 int main(int argc, char **argv, char **envp)
 {
-	printf("%s\n", redirections("echo < \% test", envp));
+	printf("%s\n", redirections("echo \"je mange\" << \% test", envp));
 	return (0);
 }
