@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 14:57:32 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/11/24 17:53:43 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/11/25 18:00:28 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -228,7 +228,9 @@ void	enter_redirect(char *entry, char *cmd, char **envp)
 	close(fdopen);
 	pid = fork();
 	if (pid == 0)
-		execve(path, str2, envp);
+		execve(path, str2, envp);// probleme exec pas
+	free (str2);
+	free (path);
 }
 
 /*
@@ -418,11 +420,9 @@ void	redirect_options(char *str, char *cmd, char *file, char **envp)
 	else if (str[i] == '>')
 		exit_redirect(file, cmd, envp);
 	else if (str[i] == '<' && str[i + 1] == '<')
-		here_doc(cmd, file, 0);
+		here_doc(cmd, file, envp);
 	else if (str[i] == '<')
-		enter_redirect(file, cmd, 0);
-	else
-		printf("bug");
+		enter_redirect(file, cmd, envp);
 }
 
 // pas forcement de redirection
@@ -473,6 +473,9 @@ char	*redirections(char *str, char **envp)
 // segfault a la fin
 int main(int argc, char **argv, char **envp)
 {
-	printf("%s\n", redirections("echo \"je mange\" << \% test", envp));
+	char	*s;
+	
+	s = redirections("ls < test", envp);
+	printf("\n%s\n", s);
 	return (0);
 }
