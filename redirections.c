@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 14:57:32 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/11/25 18:00:28 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/11/28 17:09:43 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -213,24 +213,24 @@ int	ft_strcmp(char *str1, char *str2)
 		return (-1);
 }
 
-void	enter_redirect(char *entry, char *cmd, char **envp)
+void	enter_redirect(char *entry, char *cmd, char **envp) //espace apres cmd fait bugger
 {
 	int		fdopen;
 	char	*path;
 	char	**str2;
 	int		pid;
 
-	path = ft_env(envp);
 	str2 = ft_split(cmd, ' ');
 	fdopen = open(entry, O_RDONLY);
-	path = ft_path_tester(path, cmd);
+	path = ft_path_tester(ft_env(envp), cmd);
 	dup2(fdopen, STDIN_FILENO);
 	close(fdopen);
 	pid = fork();
 	if (pid == 0)
-		execve(path, str2, envp);// probleme exec pas
+		execve(path, str2, envp);
 	free (str2);
 	free (path);
+	waitpid(pid, 0, 0);
 }
 
 /*
@@ -443,13 +443,27 @@ char	*redirections(char *str, char **envp)
 	if (i == -1)
 		return (str);
 	cmd = malloc(sizeof(char) * i + 1);
-	j = 0;
-	while (i > j)
-	{
-		cmd[j] = str[j];
-		j++;
-	}
 	cmd[i] = 0;
+	j = 1;
+	if (str[i - j] == ' ')
+	{
+		while (str[i - j] == ' ')
+			j++;
+		while (i - j >= 0)
+		{
+			cmd[i - j] = str[i - j];
+			j++;
+		}
+	}
+	else
+	{
+		j = 0;
+		while (i > j)
+		{
+			cmd[j] = str[j];
+			j++;
+		}
+	}
 	file = malloc(sizeof(char) * (ft_strlen(str) - i));
 	j++;
 	if (str[i + 1] == str[i])
@@ -475,7 +489,7 @@ int main(int argc, char **argv, char **envp)
 {
 	char	*s;
 	
-	s = redirections("ls < test", envp);
-	printf("\n%s\n", s);
+	s = redirections("echo << test", envp);
+	// printf("\n%s\n", s);
 	return (0);
 }
