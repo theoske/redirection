@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 14:57:32 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/11/28 17:09:43 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/11/28 17:57:12 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -249,7 +249,7 @@ void	here_doc(char *cmd, char *delimiter, char **envp)
 	str = 0;
 	while (1)
 	{
-		line = readline("hairdoc> ");
+		line = readline("heredoc> ");
 		if (ft_strcmp(line, delimiter) == 0)
 			break ;
 		str = ft_strjoin(str, ft_strjoin(line, "\n"));
@@ -489,7 +489,7 @@ int main(int argc, char **argv, char **envp)
 {
 	char	*s;
 	
-	s = redirections("echo << test", envp);
+	s = redirections("cat << test", envp);
 	// printf("\n%s\n", s);
 	return (0);
 }
