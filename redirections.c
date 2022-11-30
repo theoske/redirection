@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 14:57:32 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/11/28 17:57:12 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/11/30 15:14:13 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -409,7 +409,6 @@ int	ft_test(char *str, int i)
 	return (0);
 }
 
-// faire options redirect
 void	redirect_options(char *str, char *cmd, char *file, char **envp)
 {
 	int		i;
@@ -425,23 +424,12 @@ void	redirect_options(char *str, char *cmd, char *file, char **envp)
 		enter_redirect(file, cmd, envp);
 }
 
-// pas forcement de redirection
-// cmd  redirection fichier
-// passer au dela "test > test" et 'test > test'
-// echo "je mange" > test1 > test2     met dans test2 et cree juste s1
-char	*redirections(char *str, char **envp)
+char	*ft_cmd(char *str, int i, int *ptrj)
 {
-	int		i;
-	int		j;
 	char	*cmd;
-	char	*file;
-	char	*ret;
-
-	i = redirection_checker(str);
-	if (ft_test(str, i) == -1)
-		return (str);
-	if (i == -1)
-		return (str);
+	int		j;
+	
+	j = *ptrj;
 	cmd = malloc(sizeof(char) * i + 1);
 	cmd[i] = 0;
 	j = 1;
@@ -464,6 +452,22 @@ char	*redirections(char *str, char **envp)
 			j++;
 		}
 	}
+	*ptrj = j; 
+	return (cmd);
+}
+
+char	*redirections(char *str, char **envp)
+{
+	int		i;
+	int		j;
+	char	*cmd;
+	char	*file;
+	char	*ret;
+
+	i = redirection_checker(str);
+	if (i == -1 || ft_test(str, i) == -1)
+		return (str);
+	cmd = ft_cmd(str, i, &j);
 	file = malloc(sizeof(char) * (ft_strlen(str) - i));
 	j++;
 	if (str[i + 1] == str[i])
@@ -484,7 +488,8 @@ char	*redirections(char *str, char **envp)
 	free(file);
 	return (ret);
 }
-// segfault a la fin
+
+// mettre a la norme
 int main(int argc, char **argv, char **envp)
 {
 	char	*s;
