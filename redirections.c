@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 14:57:32 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/11/30 15:14:13 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/11/30 15:30:07 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -456,18 +456,12 @@ char	*ft_cmd(char *str, int i, int *ptrj)
 	return (cmd);
 }
 
-char	*redirections(char *str, char **envp)
+char	*ft_file(char *str, int i, int *ptrj)
 {
-	int		i;
-	int		j;
-	char	*cmd;
 	char	*file;
-	char	*ret;
-
-	i = redirection_checker(str);
-	if (i == -1 || ft_test(str, i) == -1)
-		return (str);
-	cmd = ft_cmd(str, i, &j);
+	int		j;
+	
+	j = *ptrj;
 	file = malloc(sizeof(char) * (ft_strlen(str) - i));
 	j++;
 	if (str[i + 1] == str[i])
@@ -481,7 +475,24 @@ char	*redirections(char *str, char **envp)
 		i++;
 		j++;
 	}
+	*ptrj = j;
 	file[i] = 0;
+	return (file);
+}
+
+char	*redirections(char *str, char **envp)
+{
+	int		i;
+	int		j;
+	char	*cmd;
+	char	*file;
+	char	*ret;
+
+	i = redirection_checker(str);
+	if (i == -1 || ft_test(str, i) == -1)
+		return (str);
+	cmd = ft_cmd(str, i, &j);
+	file = ft_file(str, i, &j);
 	redirect_options(str, cmd, file, envp);
 	ret = ft_strjoin(cmd, str + j);
 	free(cmd);
@@ -494,7 +505,6 @@ int main(int argc, char **argv, char **envp)
 {
 	char	*s;
 	
-	s = redirections("cat << test", envp);
-	// printf("\n%s\n", s);
+	s = redirections("echo \"manger des pates au pesto\" > test", envp);
 	return (0);
 }
