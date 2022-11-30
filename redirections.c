@@ -6,19 +6,19 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 14:57:32 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/11/30 15:30:07 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/11/30 15:48:10 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-# include <stdlib.h>
-# include <unistd.h>
-# include <errno.h>
-# include <fcntl.h>
-# include <stdio.h>
-# include <signal.h>
-# include <string.h>
-# include <readline/readline.h>
-# include <readline/history.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <signal.h>
+#include <string.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 #include </Users/tkempf-e/.brew/Cellar/readline/8.2.1/include/readline/readline.h>
 
 size_t	ft_strlen(const char *s)
@@ -213,7 +213,7 @@ int	ft_strcmp(char *str1, char *str2)
 		return (-1);
 }
 
-void	enter_redirect(char *entry, char *cmd, char **envp) //espace apres cmd fait bugger
+void	enter_redirect(char *entry, char *cmd, char **envp)
 {
 	int		fdopen;
 	char	*path;
@@ -281,7 +281,6 @@ char	*ft_fdtostr(int fd)
 }
 
 // cmd > exit
-//ce qui devrait aller sur la sortie standard (par défaut, le terminal), doit plutôt être stocké dans un fichier.
 void	exit_redirect(char *exit, char *cmd, char **envp)
 {
 	int		fdopen;
@@ -338,7 +337,7 @@ void	exit_append_redirect(char *exit, char *cmd, char **envp)
 	waitpid(pid, 0, 0);
 }
 
-int	ft_pipe(char *cmd, int inputfd, char **envp)// faire en sorte boucle en retournant fd 0
+int	ft_pipe(char *cmd, int inputfd, char **envp)
 {
 	int		fd[2];
 	char	**str2;
@@ -385,7 +384,8 @@ int	redirection_checker(char *str)
 			while (str[i] && str[i] != '\"')
 				i++;
 		}
-		if (i > 0 && (str[i] == '<' || str[i] == '>') && (str[i] == str[i - 1] || str[i - 1] == ' '))
+		if (i > 0 && (str[i] == '<' || str[i] == '>')
+			&& (str[i] == str[i - 1] || str[i - 1] == ' '))
 			return (i);
 		i++;
 	}
@@ -394,7 +394,8 @@ int	redirection_checker(char *str)
 
 int	ft_isalnum(int c)
 {
-	if ((c <= 90 && c >= 65) || (c <= 122 && c >= 97) || (c >= 48 && c <= 57) || c == ' ')
+	if ((c <= 90 && c >= 65) || (c <= 122 && c >= 97)
+		|| (c >= 48 && c <= 57) || c == ' ')
 		return (0);
 	return (-1);
 }
@@ -427,32 +428,29 @@ void	redirect_options(char *str, char *cmd, char *file, char **envp)
 char	*ft_cmd(char *str, int i, int *ptrj)
 {
 	char	*cmd;
-	int		j;
-	
-	j = *ptrj;
+
 	cmd = malloc(sizeof(char) * i + 1);
 	cmd[i] = 0;
-	j = 1;
-	if (str[i - j] == ' ')
+	*ptrj = 1;
+	if (str[i - *ptrj] == ' ')
 	{
-		while (str[i - j] == ' ')
-			j++;
-		while (i - j >= 0)
+		while (str[i - *ptrj] == ' ')
+			*ptrj++;
+		while (i - *ptrj >= 0)
 		{
-			cmd[i - j] = str[i - j];
-			j++;
+			cmd[i - *ptrj] = str[i - *ptrj];
+			*ptrj++;
 		}
 	}
 	else
 	{
-		j = 0;
-		while (i > j)
+		*ptrj = 0;
+		while (i > *ptrj)
 		{
-			cmd[j] = str[j];
-			j++;
+			cmd[*ptrj] = str[*ptrj];
+			*ptrj++;
 		}
 	}
-	*ptrj = j; 
 	return (cmd);
 }
 
@@ -460,7 +458,7 @@ char	*ft_file(char *str, int i, int *ptrj)
 {
 	char	*file;
 	int		j;
-	
+
 	j = *ptrj;
 	file = malloc(sizeof(char) * (ft_strlen(str) - i));
 	j++;
@@ -501,10 +499,10 @@ char	*redirections(char *str, char **envp)
 }
 
 // mettre a la norme
-int main(int argc, char **argv, char **envp)
+int	main(int argc, char **argv, char **envp)
 {
 	char	*s;
-	
+
 	s = redirections("echo \"manger des pates au pesto\" > test", envp);
 	return (0);
 }
