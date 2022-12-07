@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 14:57:32 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/12/07 16:56:52 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/12/07 18:49:05 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -430,7 +430,7 @@ char	*filer_the_creator(char *str, int redirect_nbr)
 		open(no_redirect[i], O_CREAT | O_RDWR , 0644);
 		i++;
 	}
-	return (ft_strjoin(no_redirect[0], ft_strjoin(" ", no_redirect[i])));
+	return (ft_strjoin(no_redirect[0], ft_strjoin(" > ", no_redirect[i])));
 }
 
 // gerer les redirections multiples
@@ -440,13 +440,10 @@ char	*pre_redirect(char *str)
 	char	*new_str;
 	int		redirect_nbr;
 	
-	//compte nbre redirect
 	redirect_nbr = redirection_counter(str);
-	if (redirect_nbr <= 1)
+	if (redirect_nbr < 2)
 		return (str);
-	//creee fichiers milieu
 	new_str = filer_the_creator(str, redirect_nbr);
-	//renvoie str sans fichier milieu
 	return (new_str);
 }
 
@@ -571,53 +568,34 @@ void	redirect_options(char *str, char *cmd, char *file, char **envp)
 char	*ft_cmd(char *str, int i, int *ptrj)
 {
 	char	*cmd;
+	char	**split;
 
-	cmd = malloc(sizeof(char) * i + 1);
-	cmd[i] = 0;
-	*ptrj = 1;
-	if (str[i - *ptrj] == ' ')
+	split = ft_split(str, str[i]);
+	cmd = split[0];
+	i = 1;
+	while (split[i])
 	{
-		while (str[i - *ptrj] == ' ')
-			*ptrj++;
-		while (i - *ptrj >= 0)
-		{
-			cmd[i - *ptrj] = str[i - *ptrj];
-			*ptrj++;
-		}
+		free(split[i]);
+		i++;
 	}
-	else
-	{
-		*ptrj = 0;
-		while (i > *ptrj)
-		{
-			cmd[*ptrj] = str[*ptrj];
-			*ptrj++;
-		}
-	}
+	free (split);
 	return (cmd);
 }
 
 char	*ft_file(char *str, int i, int *ptrj)
 {
 	char	*file;
-	int		j;
+	char	**split;
 
-	j = *ptrj;
-	file = malloc(sizeof(char) * (ft_strlen(str) - i));
-	j++;
-	if (str[i + 1] == str[i])
-		j++;
+	split = ft_split(str, str[i]);
+	file = ft_strtrim(split[1], " ");
 	i = 0;
-	while (str[j] == ' ')
-		j++;
-	while (str[j] && str[j] != ' ')
+	while (split[i] && split[i + 1])
 	{
-		file[i] = str[j];
+		free(split[i]);
 		i++;
-		j++;
 	}
-	*ptrj = j;
-	file[i] = 0;
+	free (split);
 	return (file);
 }
 
@@ -637,15 +615,13 @@ char	*redirections(char *str, char **envp)
 	cmd = ft_cmd(new_str, i, &j);
 	file = ft_file(new_str, i, &j);
 	redirect_options(new_str, cmd, file, envp);
-	ret = ft_strjoin(cmd, new_str + j);
-	free(cmd);
 	free(file);
-	return (ret);
+	return (cmd);
 }
 
 // mettre a la norme
 int	main(int argc, char **argv, char **envp)
 {
-	printf("%s\n", pre_redirect("echo \"salut les gogoles\" > test > test2 > test3 > test4"));
+	printf("%s\n", redirections("echo \"salut les gentilles monsieur\" >> test >> test2 >> test3 > test4", envp));
 	return (0);
 }
