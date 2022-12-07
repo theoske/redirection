@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 14:57:32 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/12/07 15:42:57 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/12/07 15:49:14 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -337,7 +337,7 @@ void	filer_the_creator(char *str, int redirect_nbr)
 
 	i = 0;
 	no_redirect = ft_split(str, '>');
-	while (no_redirect[i])
+	while (no_redirect[i])// enlever les ' ' et '>' en trop
 	{
 		j = 0;
 		while (no_redirect[i][j])
