@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 14:57:32 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/11/30 15:48:10 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/12/07 15:42:57 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -309,6 +309,63 @@ void	exit_redirect(char *exit, char *cmd, char **envp)
 	waitpid(pid, 0, 0);
 }
 
+int	redirection_counter(char *str)
+{
+	int		i;
+	int		counter;
+
+	i = 0;
+	counter = 0;
+	while (str[i])
+	{
+		if (str[i] == '>')
+		{
+			counter++;
+			if (str[i + 1] && str[i + 1] == str[i])
+				i++;
+		}
+		i++;
+	}
+	return (counter);
+}
+
+void	filer_the_creator(char *str, int redirect_nbr)
+{
+	int		i;
+	int		j;
+	char	**no_redirect;
+
+	i = 0;
+	no_redirect = ft_split(str, '>');
+	while (no_redirect[i])
+	{
+		j = 0;
+		while (no_redirect[i][j])
+		{
+			
+			j++;
+		}
+		i++;
+	}
+}
+
+// gerer les redirections multiples
+// return string without repetition of redirection
+char	*pre_redirect(char *str)
+{
+	char	*new_str;
+	int		redirect_nbr;
+	
+	//compte nbre redirect
+	redirect_nbr = redirection_counter(str);
+	if (redirect_nbr <= 1)
+		return (str);
+	//creee fichiers milieu
+	filer_the_creator(str, redirect_nbr);
+	//renvoie str sans fichier milieu
+	return (new_str);
+}
+
 void	exit_append_redirect(char *exit, char *cmd, char **envp)
 {
 	int		fdopen;
@@ -336,6 +393,9 @@ void	exit_append_redirect(char *exit, char *cmd, char **envp)
 	close(fdopen);
 	waitpid(pid, 0, 0);
 }
+// cmd                        Stdin      envp   => fd
+// cmd2                       fd    envp =>fd2
+//  dup2()
 
 int	ft_pipe(char *cmd, int inputfd, char **envp)
 {
@@ -366,9 +426,7 @@ int	ft_pipe(char *cmd, int inputfd, char **envp)
 int	redirection_checker(char *str)
 {
 	int		i;
-	int		counter;
 
-	counter = 0;
 	i = 0;
 	while (str[i])
 	{
@@ -485,14 +543,16 @@ char	*redirections(char *str, char **envp)
 	char	*cmd;
 	char	*file;
 	char	*ret;
+	char	*new_str;
 
 	i = redirection_checker(str);
 	if (i == -1 || ft_test(str, i) == -1)
 		return (str);
-	cmd = ft_cmd(str, i, &j);
-	file = ft_file(str, i, &j);
-	redirect_options(str, cmd, file, envp);
-	ret = ft_strjoin(cmd, str + j);
+	new_str = pre_redirect(str);
+	cmd = ft_cmd(new_str, i, &j);
+	file = ft_file(new_str, i, &j);
+	redirect_options(new_str, cmd, file, envp);
+	ret = ft_strjoin(cmd, new_str + j);
 	free(cmd);
 	free(file);
 	return (ret);
@@ -501,8 +561,6 @@ char	*redirections(char *str, char **envp)
 // mettre a la norme
 int	main(int argc, char **argv, char **envp)
 {
-	char	*s;
-
-	s = redirections("echo \"manger des pates au pesto\" > test", envp);
+	redirections("echo \"salut les gogoles\" > test > test2", envp);
 	return (0);
 }
