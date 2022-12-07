@@ -6,7 +6,7 @@
 /*   By: tkempf-e <tkempf-e@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 14:57:32 by tkempf-e          #+#    #+#             */
-/*   Updated: 2022/12/07 15:49:14 by tkempf-e         ###   ########.fr       */
+/*   Updated: 2022/12/07 16:56:52 by tkempf-e         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,85 @@ size_t	ft_strlen(const char *s)
 	while (s[i])
 		i++;
 	return (i);
+}
+
+int	startlim(char const *s1, char const *set)
+{
+	int		lim;
+	int		i;
+	int		j;
+
+	i = 0;
+	lim = 1;
+	while (lim == 1 && s1[i])
+	{
+		j = 0;
+		lim = 0;
+		while (set[j] && lim == 0)
+		{
+			if (s1[i] == set[j])
+				lim = 1;
+			j++;
+		}
+		i++;
+	}
+	i--;
+	return (i);
+}
+
+int	endlim(char const *s1, char const *set)
+{
+	int		h;
+	int		lim;
+	int		i;
+	int		j;
+
+	i = 0;
+	lim = 1;
+	h = ft_strlen(s1) - 1;
+	while (lim == 1 && h >= 0)
+	{
+		j = 0;
+		lim = 0;
+		while (set[j] && lim == 0)
+		{
+			if (s1[h] == set[j])
+				lim = 1;
+			j++;
+		}
+		h--;
+	}
+	h++;
+	return (h);
+}
+
+char	*ft_strtrim(char const *s1, char const *set)
+{
+	int		i;
+	int		j;
+	int		h;
+	char	*pure;
+
+	i = startlim(s1, set);
+	h = endlim(s1, set);
+	if (h < i)
+	{
+		pure = malloc(sizeof(char));
+		pure[0] = '\0';
+		return (pure);
+	}
+	pure = malloc(sizeof(char) * (h - i + 2));
+	if (!pure)
+		return (0);
+	pure[h - i + 1] = '\0';
+	j = 0;
+	while (i <= h)
+	{
+		pure[j] = s1[i];
+		i++;
+		j++;
+	}
+	return (pure);
 }
 
 void	ft_putstr_fd(char *s, int fd)
@@ -329,24 +408,29 @@ int	redirection_counter(char *str)
 	return (counter);
 }
 
-void	filer_the_creator(char *str, int redirect_nbr)
+char	*filer_the_creator(char *str, int redirect_nbr)
 {
 	int		i;
 	int		j;
 	char	**no_redirect;
+	char	*file;
 
-	i = 0;
 	no_redirect = ft_split(str, '>');
+	i = 0;
 	while (no_redirect[i])// enlever les ' ' et '>' en trop
 	{
-		j = 0;
-		while (no_redirect[i][j])
-		{
-			
-			j++;
-		}
+		file = ft_strtrim(no_redirect[i], " ><");
+		free (no_redirect[i]);
+		no_redirect[i] = file;
 		i++;
 	}
+	i = 1;
+	while (no_redirect[i] && no_redirect[i + 1])
+	{
+		open(no_redirect[i], O_CREAT | O_RDWR , 0644);
+		i++;
+	}
+	return (ft_strjoin(no_redirect[0], ft_strjoin(" ", no_redirect[i])));
 }
 
 // gerer les redirections multiples
@@ -361,7 +445,7 @@ char	*pre_redirect(char *str)
 	if (redirect_nbr <= 1)
 		return (str);
 	//creee fichiers milieu
-	filer_the_creator(str, redirect_nbr);
+	new_str = filer_the_creator(str, redirect_nbr);
 	//renvoie str sans fichier milieu
 	return (new_str);
 }
@@ -415,6 +499,7 @@ int	ft_pipe(char *cmd, int inputfd, char **envp)
 		close(inputfd);
 		dup2(fd[1], STDOUT_FILENO);
 		close(fd[1]);
+		//redirection ici
 		execve(path, str2, envp);
 	}
 	close(fd[1]);
@@ -561,6 +646,6 @@ char	*redirections(char *str, char **envp)
 // mettre a la norme
 int	main(int argc, char **argv, char **envp)
 {
-	redirections("echo \"salut les gogoles\" > test > test2", envp);
+	printf("%s\n", pre_redirect("echo \"salut les gogoles\" > test > test2 > test3 > test4"));
 	return (0);
 }
